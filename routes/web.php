@@ -14,3 +14,9 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/ssa', function () {
+    return view('welcome');
+});
+
+Route::Post('/notify/userregister','HomeController@store');
