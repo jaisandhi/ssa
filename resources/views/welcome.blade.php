@@ -162,6 +162,7 @@
         <!-- Main content -->
             <section class="content">
             <div class="col-md-10 col-md-offset-1">
+                
                     <div class=" box box-info ">
               <form method="post" action="/notify/userregister" name="registration" style="border:1px solid #ccc;padding:30px;" id="user_register">
                   <!-- <h4 class="text-center">User Register</h4> -->
@@ -245,32 +246,58 @@
               },
               email: "Please enter a valid email address"
             },
-            submitHandler: function(form) {               
-              $.ajax({
-                    type : "POST",
-                    url : '/notify/userregister',
-                    data : {
-                        'name' : $('.name').val(),
-                        'email' : $('.email').val(),
-                        'password' : $('.password').val(),
-                        '_token' : $('meta[name="csrf-token"]').attr('content')
-                    },
-                    dataType : 'json',
-                    success : function( data ) {
-                        var count = +$('.notifications-menu').find('span').text() + +1;
-                        $('.notifications-menu').find('span').text(+count);
-                        $('.notifications-menu').find('.header').text('you have ' + count + ' notifications');
-                        $('.notifications-menu').find('ul.menu:last').append('<li><a href="#"><i class="fa fa-users text-aqua"></i> New User '+ data.storeuser.name +' Was Registered</a></li>')
-                        $('#user_register').trigger("reset");
-                        toastr.success('Sucessfully User Registered in your site')
-                    }
-              });
+            submitHandler: function(form) {  
+              if (validateEmail($('.email').val()) && $('.password').val().length != 6) {
+                  $('#mail-error').css('display','none');
+                  $('#mail-error').text('');
+                  $('#pwd-error').css('display','none');
+                  $('#pwd-error').text('');   
+                   $.ajax({
+                        type : "POST",
+                        url : '/notify/userregister',
+                        data : {
+                            'name' : $('.name').val(),
+                            'email' : $('.email').val(),
+                            'password' : $('.password').val(),
+                            '_token' : $('meta[name="csrf-token"]').attr('content')
+                        },
+                        dataType : 'json',
+                        success : function( data ) {
+                            var count = +$('.notifications-menu').find('span').text() + +1;
+                            $('.notifications-menu').find('span').text(+count);
+                            $('.notifications-menu').find('.header').text('you have ' + count + ' notifications');
+                            $('.notifications-menu').find('ul.menu:last').append('<li><a href="#"><i class="fa fa-users text-aqua"></i> New User '+ data.storeuser.name +' Was Registered</a></li>')
+                            $('#user_register').trigger("reset");
+                            toastr.success('Sucessfully User Registered in your site')
+                        },
+                        error:function(error){
+                            var json = JSON.parse(error.responseText);
+                            console.log(json.email);
+                            console.log(json.password);
+                        }
+                  });
+              }
+              else {
+                  $('#mail-error').css('display','block');
+                  $('#mail-error').text('The email must be a valid email address.');       
+                  $('#pwd-error').css('display','block');
+                  $('#pwd-error').text('greater than six characters.');                 
+              }              
             }
           });
 
         $('#reset_but').on('click',function(){
                 $('label.error').remove();
         });
+
+      function validateEmail(mail) {
+        var filter = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
+        if (filter.test(mail)) {
+           return true;
+        }else {
+           return false;
+        }
+      }
     </script>
 
     </body>
